@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.hoomanconnect.app.diagnostics.EndpointProbe
+import com.hoomanconnect.app.diagnostics.NetworkSnapshot
 
 private val Navy = Color(0xFF071522)
 private val Panel = Color(0xFF102638)
@@ -155,6 +156,8 @@ private data class DomainResult(val domain: String, val detail: String, val ok: 
 
 @Composable
 private fun GoogleAssistantScreen() {
+    val context = LocalContext.current
+    var networkSnapshot by remember { mutableStateOf<NetworkSnapshot?>(null) }
     val scope = rememberCoroutineScope()
     var loading by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<List<DomainResult>>(emptyList()) }
@@ -162,6 +165,20 @@ private fun GoogleAssistantScreen() {
     val domains = listOf("accounts.google.com", "gemini.google.com", "flow.google.com")
 
     Text("Google Service Assistant", color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.Bold)
+    Spacer(Modifier.height(8.dp))
+    OutlinedButton(onClick = { networkSnapshot = NetworkSnapshot.read(context) }, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Info, contentDescription = null); Spacer(Modifier.width(8.dp)); Text("وضعیت شبکه دستگاه") }
+    networkSnapshot?.let { snapshot ->
+        Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = CardDefaults.cardColors(containerColor = Panel)) {
+            Column(Modifier.padding(14.dp)) {
+                Text("نوع شبکه: ${snapshot.transport}", color = Color.White, fontWeight = FontWeight.SemiBold)
+                Text(snapshot.message, color = Muted, fontSize = 12.sp)
+                Text("اینترنت: ${if (snapshot.internetAvailable) "دارد" else "ندارد"} | تأیید اندروید: ${if (snapshot.validated) "بله" else "خیر"}", color = Muted, fontSize = 12.sp)
+                Text("DNS: ${snapshot.dnsServers.joinToString().ifBlank { "نامشخص" }}", color = Muted, fontSize = 11.sp)
+                Text("IPv4 محلی: ${snapshot.ipv4Addresses.joinToString().ifBlank { "ندارد" }}", color = Muted, fontSize = 11.sp)
+                Text("IPv6 محلی: ${snapshot.ipv6Addresses.joinToString().ifBlank { "ندارد" }}", color = Muted, fontSize = 11.sp)
+            }
+        }
+    }
     Spacer(Modifier.height(8.dp))
     Text("این ابزار فقط وضعیت DNS و دسترسی پایه شبکه را بررسی می‌کند؛ وضعیت حساب، سن، اشتراک یا مجاز بودن منطقه را تغییر نمی‌دهد.", color = Muted, fontSize = 13.sp, lineHeight = 20.sp)
     Spacer(Modifier.height(18.dp))
