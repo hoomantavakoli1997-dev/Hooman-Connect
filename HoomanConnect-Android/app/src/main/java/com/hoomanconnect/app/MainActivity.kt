@@ -3,6 +3,7 @@ package com.hoomanconnect.app
 import android.os.Bundle
 import android.content.Intent
 import android.net.VpnService
+import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.hoomanconnect.app.vpn.HoomanVpnService
@@ -36,10 +37,10 @@ import kotlinx.coroutines.withContext
 import com.hoomanconnect.app.diagnostics.EndpointProbe
 import com.hoomanconnect.app.diagnostics.NetworkSnapshot
 
-private val Navy = Color(0xFF071522)
-private val Panel = Color(0xFF102638)
-private val Cyan = Color(0xFF27C2D1)
-private val Muted = Color(0xFF9FB4C3)
+private val Navy = Color(0xFF071827)
+private val Panel = Color(0xFF102B3D)
+private val Cyan = Color(0xFF20D4DF)
+private val Muted = Color(0xFFA9C0CD)
 
 class MainActivity : ComponentActivity() {
     private var vpnMessage by mutableStateOf("اتصال VPN هنوز آماده نیست؛ هسته اتصال نصب نشده است.")
@@ -101,11 +102,11 @@ private fun HoomanApp(vpnMessage: String, onVpnStart: () -> Unit) {
             }) { padding ->
                 Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("♜", color = Cyan, fontSize = 32.sp)
+                        Text("🦅", fontSize = 32.sp)
                         Spacer(Modifier.width(10.dp))
                         Column {
                             Text("HOOMAN CONNECT", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
-                            Text("اتصال هوشمند و امن", color = Muted, fontSize = 12.sp)
+                            Text("دستیار هوشمند شبکه", color = Muted, fontSize = 12.sp)
                         }
                     }
                     Spacer(Modifier.height(24.dp))
@@ -128,7 +129,7 @@ private fun HomeScreen(vpnMessage: String, onVpnStart: () -> Unit, onGoogle: () 
     Spacer(Modifier.height(12.dp))
     Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(28.dp)) {
         Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("🦅", fontSize = 72.sp)
+            Text("🦅", fontSize = 76.sp)
             Text("Hooman Connect", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Text(vpnMessage, color = Muted, fontSize = 13.sp)
@@ -162,9 +163,26 @@ private fun GoogleAssistantScreen() {
     var loading by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<List<DomainResult>>(emptyList()) }
     var message by remember { mutableStateOf("برای شروع، بررسی شبکه را اجرا کن.") }
-    val domains = listOf("accounts.google.com", "gemini.google.com", "flow.google.com")
+    val domains = listOf("accounts.google.com", "gemini.google.com", "labs.google")
 
     Text("Google Service Assistant", color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.Bold)
+    Spacer(Modifier.height(12.dp))
+    Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(22.dp)) {
+        Column(Modifier.fillMaxWidth().padding(18.dp)) {
+            Text("Google Flow", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(6.dp))
+            Text("صفحه رسمی Flow را در مرورگر دستگاه باز کن. ورود به حساب و شرایط دسترسی را خود Google مدیریت می‌کند.", color = Muted, fontSize = 13.sp, lineHeight = 19.sp)
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = {
+                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://labs.google/fx/tools/flow"))
+                context.startActivity(intent)
+            }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("باز کردن Google Flow")
+            }
+        }
+    }
     Spacer(Modifier.height(8.dp))
     OutlinedButton(onClick = { networkSnapshot = NetworkSnapshot.read(context) }, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Info, contentDescription = null); Spacer(Modifier.width(8.dp)); Text("وضعیت شبکه دستگاه") }
     networkSnapshot?.let { snapshot ->
