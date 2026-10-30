@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.content.Intent
 import android.net.VpnService
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.hoomanconnect.app.vpn.HoomanVpnService
@@ -169,13 +170,25 @@ private fun GoogleAssistantScreen() {
     Spacer(Modifier.height(12.dp))
     Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(22.dp)) {
         Column(Modifier.fillMaxWidth().padding(18.dp)) {
+            Text("Google Gemini", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("اگر اپ Gemini نصب باشد همان اپ باز می‌شود؛ در غیر این صورت نسخه وب باز خواهد شد.", color = Muted, fontSize = 13.sp, lineHeight = 19.sp)
+            Spacer(Modifier.height(10.dp))
+            Button(onClick = { openGoogleAppOrWeb(context, "com.google.android.apps.bard", "https://gemini.google.com") }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.SmartToy, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("باز کردن Gemini")
+            }
+        }
+    }
+    Spacer(Modifier.height(12.dp))
+    Card(colors = CardDefaults.cardColors(containerColor = Panel), shape = RoundedCornerShape(22.dp)) {
+        Column(Modifier.fillMaxWidth().padding(18.dp)) {
             Text("Google Flow", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text("صفحه رسمی Flow را در مرورگر دستگاه باز کن. ورود به حساب و شرایط دسترسی را خود Google مدیریت می‌کند.", color = Muted, fontSize = 13.sp, lineHeight = 19.sp)
             Spacer(Modifier.height(12.dp))
             Button(onClick = {
-                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://labs.google/fx/tools/flow"))
-                context.startActivity(intent)
+                openGoogleAppOrWeb(context, null, "https://labs.google/fx/tools/flow")
             }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
@@ -241,6 +254,20 @@ private fun GoogleAssistantScreen() {
     Text("نکته: موفقیت DNS فقط یعنی نام دامنه به نشانی شبکه تبدیل شده است؛ دسترسی نهایی ممکن است به عوامل دیگری مثل حساب کاربری، منطقه و شرایط خود سرویس وابسته باشد.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp)
 }
 
+
+
+private fun openGoogleAppOrWeb(context: android.content.Context, packageName: String?, url: String) {
+    val appIntent = packageName?.let { context.packageManager.getLaunchIntentForPackage(it) }
+    try {
+        if (appIntent != null) context.startActivity(appIntent)
+        else {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            if (packageName != null) Toast.makeText(context, "اپ Gemini نصب نیست؛ نسخه وب باز شد.", Toast.LENGTH_LONG).show()
+        }
+    } catch (_: Exception) {
+        Toast.makeText(context, "باز کردن سرویس ممکن نشد.", Toast.LENGTH_LONG).show()
+    }
+}
 
 @Composable
 private fun ServerProfilesScreen() {
